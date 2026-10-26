@@ -57,7 +57,7 @@ def resolve_dependent_libs(libs: set[str]) -> set[str]:
     returns all libs which depend on any of the passed libs (/lib),
     recursively resolving transitive dependencies
     """
-    if not libs:
+    if not libs or not Path("lib").is_dir():
         return set()
 
     all_dependent_libs = set()
@@ -93,7 +93,7 @@ def resolve_multisrc_lib(libs: set[str]) -> set[str]:
     returns all multisrc which depend on any of the
     passed libs (/lib)
     """
-    if not libs:
+    if not libs or not Path("lib-multisrc").is_dir():
         return set()
 
     lib_dependency = re.compile(
@@ -230,6 +230,7 @@ def get_all_lint_modules() -> list[str]:
     modules.extend(
         f":{directory}:{module.name}"
         for directory in ("lib", "lib-multisrc")
+        if Path(directory).is_dir()
         for module in Path(directory).iterdir()
         if (module / "build.gradle.kts").is_file()
     )

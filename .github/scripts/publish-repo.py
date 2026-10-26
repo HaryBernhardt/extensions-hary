@@ -3,6 +3,8 @@ import hashlib
 import html
 import json
 import math
+import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -18,7 +20,7 @@ ARTIFACTS_DIR = Path.home() / "apk-artifacts"
 # The checked-out `repo` branch we publish into (the working directory).
 REPO_DIR = Path.cwd()
 
-ICON_BASE_URL = "https://cdn.jsdelivr.net/gh/keiyoushi/extensions-source@main"
+ICON_BASE_URL = f"https://cdn.jsdelivr.net/gh/{REPO_NAME}@main"
 RELEASE_BASE_URL = f"https://github.com/{REPO_NAME}/releases/download"
 ASSET_LIMIT = 495  # Actual limit is 1000 but we upload 2 items per extension.
 UPLOAD_CHUNK_SIZE = 80
@@ -32,8 +34,12 @@ current_sha_short = current_sha[:7]
 # from the source tree, which a diff against the empty tree can't see.
 full_rebuild = sys.argv[3] == "true"
 
-with REPO_DIR.joinpath("index.json").open() as f:
-    remote_proto = json_format.Parse(f.read(), index_pb2.Index())
+index_json_path = REPO_DIR.joinpath("index.json")
+if index_json_path.exists():
+    with index_json_path.open(encoding="utf-8") as f:
+        remote_proto = json_format.Parse(f.read(), index_pb2.Index())
+else:
+    remote_proto = index_pb2.Index()
 
 remote_extensions = {
     ext.packageName: ext for ext in remote_proto.extensionList.extensions
@@ -188,13 +194,28 @@ final_extensions.extend(
 final_extensions.extend(ext for ext, _, _, _, _ in new_extensions)
 final_extensions.sort(key=lambda ext: ext.packageName)
 
+def extract_signing_key(apk_path: Path | None) -> str:
+    if apk_path is not None:
+        result = subprocess.run(
+            ["keytool", "-printcert", "-jarfile", str(apk_path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        match = re.search(r"SHA256:\s*([0-9A-Fa-f:]{95})", result.stdout)
+        if match:
+            return match.group(1).replace(":", "").lower()
+    return remote_proto.signingKey or "9add655a78e96c4ec7a53ef89dccb557cb5d767489fac5e785d671a5a75d4da2"
+
+
+sample_apk = new_extensions[0][1] if new_extensions else None
+
 index = index_pb2.Index(
-    name="Keiyoushi",
-    badgeLabel="KEI",
-    signingKey="9add655a78e96c4ec7a53ef89dccb557cb5d767489fac5e785d671a5a75d4da2",
+    name="Hary Extensions",
+    badgeLabel="HARY",
+    signingKey=extract_signing_key(sample_apk),
     contact=index_pb2.Contact(
-        website="https://keiyoushi.github.io",
-        discord="https://discord.gg/3FbCpdKbdY",
+        website=f"https://github.com/{REPO_NAME}",
     ),
     extensionList=index_pb2.ExtensionList(extensions=final_extensions),
 )
@@ -205,6 +226,16 @@ with REPO_DIR.joinpath("index.json").open("w", encoding="utf-8") as f:
             index,
             always_print_fields_with_no_presence=False,
             preserving_proto_field_name=True,
+        )
+    )
+
+with REPO_DIR.joinpath("index.min.json").open("w", encoding="utf-8") as f:
+    f.write(
+        json_format.MessageToJson(
+            index,
+            always_print_fields_with_no_presence=False,
+            preserving_proto_field_name=True,
+            indent=None,
         )
     )
 
