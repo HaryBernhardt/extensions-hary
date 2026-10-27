@@ -1,0 +1,22 @@
+{
+  "eu.kanade.tachiyomi.extension.en.comickdohary": {
+    "apk": {
+      "name": "tachiyomi-en.comickdohary-v1.6.1.apk",
+      "sha256": "56be8a3ad02533a1411af7f8354162d6aef72ad2ad9a81c74954cd0f166754d1"
+    },
+    "jar": {
+      "name": "tachiyomi-en.comickdohary-v1.6.1.jar",
+      "sha256": "1081d5ea698fa1a9cfe9e55de45bfba9f11fc356e8bc1796a9099077d17735be"
+    }
+  },
+  "eu.kanade.tachiyomi.extension.en.mangadexdohary": {
+    "apk": {
+      "name": "tachiyomi-en.mangadexdohary-v1.6.1.apk",
+      "sha256": "4abc411a435efa4a66e249a4b6b0f8569cd2cc33aa3f7203140807703be47aa5"
+    },
+    "jar": {
+      "name": "tachiyomi-en.mangadexdohary-v1.6.1.jar",
+      "sha256": "40499fbe5b18e33860f0b0a9b1e70a3305b4da7b0e895eb214941d9136f870e4"
+    }
+  }
+}

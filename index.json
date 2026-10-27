@@ -1,0 +1,54 @@
+{
+  "name": "Hary Extensions",
+  "badgeLabel": "HARY",
+  "signingKey": "9add655a78e96c4ec7a53ef89dccb557cb5d767489fac5e785d671a5a75d4da2",
+  "contact": {
+    "website": "https://github.com/HaryBernhardt/extensions-hary"
+  },
+  "extensionList": {
+    "extensions": [
+      {
+        "name": "Comick do Hary",
+        "packageName": "eu.kanade.tachiyomi.extension.en.comickdohary",
+        "resources": {
+          "apkUrl": "https://github.com/HaryBernhardt/extensions-hary/releases/download/77b588c/tachiyomi-en.comickdohary-v1.6.1.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/HaryBernhardt/extensions-hary@main/src/en/comickdohary/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/HaryBernhardt/extensions-hary/releases/download/77b588c/tachiyomi-en.comickdohary-v1.6.1.jar"
+        },
+        "extensionLib": "1.6",
+        "versionCode": "106001",
+        "versionName": "1.6.1",
+        "contentWarning": "CONTENT_WARNING_NSFW",
+        "sources": [
+          {
+            "id": "9012072261371398199",
+            "name": "Comick do Hary",
+            "language": "en",
+            "homeUrl": "https://comickz.co.uk"
+          }
+        ]
+      },
+      {
+        "name": "Mangadex Do Hary",
+        "packageName": "eu.kanade.tachiyomi.extension.en.mangadexdohary",
+        "resources": {
+          "apkUrl": "https://github.com/HaryBernhardt/extensions-hary/releases/download/77b588c/tachiyomi-en.mangadexdohary-v1.6.1.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/HaryBernhardt/extensions-hary@main/src/en/mangadexdohary/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/HaryBernhardt/extensions-hary/releases/download/77b588c/tachiyomi-en.mangadexdohary-v1.6.1.jar"
+        },
+        "extensionLib": "1.6",
+        "versionCode": "106001",
+        "versionName": "1.6.1",
+        "contentWarning": "CONTENT_WARNING_MIXED",
+        "sources": [
+          {
+            "id": "7329479802639376452",
+            "name": "Mangadex Do Hary",
+            "language": "en",
+            "homeUrl": "https://mangadex.org"
+          }
+        ]
+      }
+    ]
+  }
+}
