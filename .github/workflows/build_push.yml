@@ -136,35 +136,14 @@ jobs:
         with:
           cache-read-only: true
 
-      - id: signing
-        name: Prepare signing key
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          ALIAS: ${{ secrets.ALIAS }}
-          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Prepare signing key
         run: |
-          if [ -n "$SIGNING_KEY" ]; then
-            echo "$SIGNING_KEY" | tr -d ' \t\r\n' | base64 -d > signingkey.jks
-          fi
-          if [ -s signingkey.jks ]; then
-            if ! keytool -list -keystore signingkey.jks -storepass "$KEY_STORE_PASSWORD" -alias "$ALIAS" >/dev/null 2>&1; then
-              DETECTED_ALIAS=$(keytool -list -v -keystore signingkey.jks -storepass "$KEY_STORE_PASSWORD" | awk '/Alias name:/ {print $3; exit}')
-              if [ -n "$DETECTED_ALIAS" ]; then
-                echo "Using detected keystore alias: $DETECTED_ALIAS"
-                ALIAS="$DETECTED_ALIAS"
-              fi
-            fi
-            echo "alias=$ALIAS" >> "$GITHUB_OUTPUT"
-          else
-            rm -f signingkey.jks
-            echo "alias=" >> "$GITHUB_OUTPUT"
-          fi
+          echo ${{ secrets.SIGNING_KEY }} | base64 -d > signingkey.jks
 
       - name: Build extensions (${{ matrix.chunk.number }})
         env:
           MODULES: ${{ join(matrix.chunk.modules, ' ') }}
-          ALIAS: ${{ steps.signing.outputs.alias }}
+          ALIAS: ${{ secrets.ALIAS }}
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |

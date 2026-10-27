@@ -194,10 +194,10 @@ final_extensions.extend(
 final_extensions.extend(ext for ext, _, _, _, _ in new_extensions)
 final_extensions.sort(key=lambda ext: ext.packageName)
 
-def extract_signing_key(apk_path: Path | None) -> str:
-    if apk_path is not None:
+def extract_signing_key(jar_path: Path | None) -> str:
+    if jar_path is not None:
         result = subprocess.run(
-            ["keytool", "-printcert", "-jarfile", str(apk_path)],
+            ["keytool", "-printcert", "-jarfile", str(jar_path)],
             capture_output=True,
             text=True,
             check=False,
@@ -205,15 +205,22 @@ def extract_signing_key(apk_path: Path | None) -> str:
         match = re.search(r"SHA256:\s*([0-9A-Fa-f:]{95})", result.stdout)
         if match:
             return match.group(1).replace(":", "").lower()
-    return remote_proto.signingKey or "9add655a78e96c4ec7a53ef89dccb557cb5d767489fac5e785d671a5a75d4da2"
+    return (
+        remote_proto.signingKey
+        if remote_proto.signingKey
+        and remote_proto.signingKey
+        != "9add655a78e96c4ec7a53ef89dccb557cb5d767489fac5e785d671a5a75d4da2"
+        else "5e4c5f24af49cd050a16aa653d823a042a30f4de8431c8b5c9e61f39b6d321e3"
+    )
 
 
-sample_apk = new_extensions[0][1] if new_extensions else None
+sample_jar = new_extensions[0][2] if new_extensions else None
+signing_key = extract_signing_key(sample_jar)
 
 index = index_pb2.Index(
     name="Hary Extensions",
     badgeLabel="HARY",
-    signingKey=extract_signing_key(sample_apk),
+    signingKey=signing_key,
     contact=index_pb2.Contact(
         website=f"https://github.com/{REPO_NAME}",
     ),
@@ -238,6 +245,21 @@ with REPO_DIR.joinpath("index.min.json").open("w", encoding="utf-8") as f:
             indent=None,
         )
     )
+
+with REPO_DIR.joinpath("repo.json").open("w", encoding="utf-8") as f:
+    json.dump(
+        {
+            "index_v2": f"https://github.com/{REPO_NAME}/raw/repo/index.pb",
+            "meta": {
+                "name": "Hary Extensions",
+                "website": f"https://github.com/{REPO_NAME}",
+                "signingKeyFingerprint": signing_key,
+            },
+        },
+        f,
+        indent=2,
+    )
+    f.write("\n")
 
 with REPO_DIR.joinpath("index.pb").open("wb") as f:
     f.write(gzip.compress(index.SerializeToString(deterministic=True), mtime=0))
